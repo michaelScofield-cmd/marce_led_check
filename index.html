@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controle de LED's</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script type="module">
+    // Importa SDK do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      <!-- Firebase App (core SDK) -->
+<script type="module">
+  // Importa os módulos necessários
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+  import { getDatabase, ref, onValue, runTransaction, set } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js";
+
+  // Sua configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAW53f_oW6Hr0_XBDoiVeSLoANCXqn6RSA",
+    authDomain: "marcelo-20e02.firebaseapp.com",
+    databaseURL: "https://marcelo-20e02-default-rtdb.firebaseio.com",
+    projectId: "marcelo-20e02",
+    storageBucket: "marcelo-20e02.firebasestorage.app",
+    messagingSenderId: "913181625060",
+    appId: "1:913181625060:web:58ac5a1cfc9fb0aad27af1"
+  };
+
+  // Inicializa o Firebase e o Realtime Database
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Funções globais que seu HTML usa
+  window.db = db;
+  window.ref = ref;
+  window.onValue = onValue;
+  window.runTransaction = runTransaction;
+  window.set = set;
+</script>
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function toggle(ledId) {
+      const refLed = ref(db, "leds/" + ledId);
+      onValue(refLed, (snapshot) => {
+        const atual = snapshot.val();
+        set(refLed, !atual);
+      }, { onlyOnce: true });
+    }
+
+    function atualizarUI(ledId, state) {
+      const btn = document.getElementById(ledId);
+      const card = document.getElementById(`${ledId}-card`);
+      
+      if (state) {
+        btn.classList.remove("off");
+        btn.classList.add("on");
+        card.classList.remove("off");
+        card.classList.add("on");
+        btn.innerHTML = `<i class="fas fa-power-off"></i> LIGADO`;
+      } else {
+        btn.classList.remove("on");
+        btn.classList.add("off");
+        card.classList.remove("on");
+        card.classList.add("off");
+        btn.innerHTML = `<i class="fas fa-power-off"></i> DESLIGADO`;
+      }
+      
+      // Atualizar status
+      const statusElement = document.querySelector(`.status-indicator[data-led="${ledId}"] .indicator`);
+      const statusText = document.querySelector(`.status-indicator[data-led="${ledId}"] .status-text`);
+      if (statusElement) {
+        statusElement.style.backgroundColor = state ? "#03dac6" : "#cf6679";
+        statusText.textContent = state ? "LIGADO" : "DESLIGADO";
+      }
+    }
+
+    ["led1", "led2", "led3"].forEach(ledId => {
+      const ledRef = ref(db, "leds/" + ledId);
+      onValue(ledRef, (snapshot) => {
+        atualizarUI(ledId, snapshot.val());
+      });
+    });
+
+    window.toggle = toggle;
+  </script>
+  <style>
+    :root {
+      --primary: #03dac6;
+      --primary-dark: #00a896;
+      --secondary: #bb86fc;
+      --error: #cf6679;
+      --background: #0c0c0c;
+      --surface: #1a1a1a;
+      --surface-light: #2a2a2a;
+      --on-background: #ffffff;
+      --on-surface: #e0e0e0;
+      --elevation-1: 0 4px 20px rgba(0, 0, 0, 0.5);
+      --elevation-2: 0 8px 30px rgba(0, 0, 0, 0.6);
+      --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #121212 0%, #000000 100%);
+      color: var(--on-background);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(3, 218, 198, 0.05) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(187, 134, 252, 0.05) 0%, transparent 25%);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0 40px;
+      margin-bottom: 20px;
+      position: relative;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+      box-shadow: 0 0 15px rgba(3, 218, 198, 0.5);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 3.2rem;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px rgba(3, 218, 198, 0.3);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px rgba(3, 218, 198, 0.3); }
+      to { text-shadow: 0 0 20px rgba(3, 218, 198, 0.6), 0 0 30px rgba(3, 218, 198, 0.4); }
+    }
+
+    .led-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin: 40px 0;
+    }
+
+    .led-card {
+      background: linear-gradient(145deg, var(--surface), var(--surface-light));
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--elevation-1);
+      transition: var(--transition);
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      animation: cardAppear 0.8s ease-out;
+      animation-fill-mode: backwards;
+    }
+
+    .led-card:nth-child(1) { animation-delay: 0.2s; }
+    .led-card:nth-child(2) { animation-delay: 0.4s; }
+    .led-card:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes cardAppear {
+      from { opacity: 0; transform: translateY(30px) rotateX(10deg); }
+      to { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    .led-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--error);
+      transition: var(--transition);
+    }
+
+    .led-card.on::before {
+      background: var(--primary);
+      box-shadow: 0 0 20px var(--primary);
+    }
+
+    .led-content {
+      padding: 35px 25px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .led-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+      background: var(--surface-light);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        inset 0 0 15px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(0, 0, 0, 0.4);
+      transition: var(--transition);
+    }
+
+    .led-icon::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--error);
+      opacity: 0.2;
+      transition: var(--transition);
+    }
+
+    .led-card.on .led-icon::after {
+      background: var(--primary);
+      opacity: 0.3;
+      box-shadow: 0 0 30px var(--primary);
+    }
+
+    .led-card.on .led-icon {
+      box-shadow: 
+        inset 0 0 20px rgba(3, 218, 198, 0.4),
+        0 0 30px rgba(3, 218, 198, 0.3);
+    }
+
+    .led-icon i {
+      font-size: 45px;
+      color: var(--on-surface);
+      transition: var(--transition);
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .led-card.on .led-icon i {
+      color: var(--primary);
+      text-shadow: 0 0 15px var(--primary);
+    }
+
+    .led-title {
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 25px;
+      color: var(--on-background);
+      text-align: center;
+    }
+
+    .led-btn {
+      font-size: 1.1rem;
+      padding: 16px 45px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 600;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      background: var(--surface-light);
+      color: var(--on-surface);
+      box-shadow: var(--elevation-1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+      justify-content: center;
+    }
+
+    .led-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+      transform: translateX(-100%);
+      transition: var(--transition);
+    }
+
+    .led-btn:hover::before {
+      transform: translateX(100%);
+    }
+
+    .led-btn.off {
+      background: linear-gradient(to right, #2a2a2a, #1f1f1f);
+      color: #cfcfcf;
+    }
+
+    .led-btn.off:hover {
+      background: linear-gradient(to right, #cf6679, #b84d65);
+      color: white;
+      box-shadow: 0 0 20px rgba(207, 102, 121, 0.6);
+    }
+
+    .led-btn.on {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: #121212;
+      box-shadow: 0 0 20px rgba(3, 218, 198, 0.6);
+    }
+
+    .led-btn.on:hover {
+      background: linear-gradient(to right, var(--primary-dark), #008c7a);
+      box-shadow: 0 0 25px rgba(3, 218, 198, 0.8);
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-top: 40px;
+      padding: 20px 30px;
+      background: rgba(30, 30, 30, 0.6);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: var(--elevation-1);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1rem;
+      color: var(--on-surface);
+      padding: 8px 15px;
+      border-radius: 30px;
+      background: rgba(0, 0, 0, 0.2);
+      min-width: 160px;
+    }
+
+    .indicator {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--error);
+      transition: var(--transition);
+      box-shadow: 0 0 8px var(--error);
+    }
+
+    .status-text {
+      font-weight: 500;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 30px;
+      padding: 15px 25px;
+      background: rgba(30, 30, 30, 0.6);
+      border-radius: 50px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    .connection-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--error);
+      animation: pulse 2s infinite;
+    }
+
+    .connection-dot.connected {
+      background: var(--primary);
+      animation: pulse-connected 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; box-shadow: 0 0 0 0 rgba(207, 102, 121, 0.6); }
+      100% { opacity: 0.6; }
+    }
+
+    @keyframes pulse-connected {
+      0% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0.4); }
+      70% { box-shadow: 0 0 0 12px rgba(3, 218, 198, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 900px) {
+      .led-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      
+      .led-content {
+        padding: 25px 20px;
+      }
+      
+      .led-icon {
+        width: 85px;
+        height: 85px;
+      }
+      
+      .led-icon i {
+        font-size: 38px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .led-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 30px auto;
+      }
+      
+      .status-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+      
+      .status-indicator {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.1rem;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      .led-icon {
+        width: 75px;
+        height: 75px;
+      }
+      
+      .led-icon i {
+        font-size: 32px;
+      }
+      
+      .led-title {
+        font-size: 1.5rem;
+      }
+      
+      .led-btn {
+        padding: 14px 30px;
+        font-size: 1rem;
+        min-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CONTROLE DE LED'S</h1>
+    </header>
+    
+    <div class="led-grid">
+      <div class="led-card off" id="led1-card">
+        <div class="led-content">
+          <div class="led-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h3 class="led-title">LED 1</h3>
+          <button id="led1" class="led-btn off" onclick="toggle('led1')">
+            <i class="fas fa-power-off"></i> DESLIGADO
+          </button>
+        </div>
+      </div>
+      
+      <div class="led-card off" id="led2-card">
+        <div class="led-content">
+          <div class="led-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h3 class="led-title">LED 2</h3>
+          <button id="led2" class="led-btn off" onclick="toggle('led2')">
+            <i class="fas fa-power-off"></i> DESLIGADO
+          </button>
+        </div>
+      </div>
+      
+      <div class="led-card off" id="led3-card">
+        <div class="led-content">
+          <div class="led-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <h3 class="led-title">LED 3</h3>
+          <button id="led3" class="led-btn off" onclick="toggle('led3')">
+            <i class="fas fa-power-off"></i> DESLIGADO
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-bar">
+      <div class="status-indicator" data-led="led1">
+        <div class="indicator"></div>
+        <span>LED 1: </span>
+        <span class="status-text">DESLIGADO</span>
+      </div>
+      <div class="status-indicator" data-led="led2">
+        <div class="indicator"></div>
+        <span>LED 2: </span>
+        <span class="status-text">DESLIGADO</span>
+      </div>
+      <div class="status-indicator" data-led="led3">
+        <div class="indicator"></div>
+        <span>LED 3: </span>
+        <span class="status-text">DESLIGADO</span>
+      </div>
+    </div>
+    
+    <div class="connection-status">
+      <div class="connection-dot"></div>
+      <span>Conectando ao servidor...</span>
+    </div>
+  </div>
+
+  <script>
+    // Simular conexão com Firebase
+    setTimeout(() => {
+      const dot = document.querySelector('.connection-dot');
+      const statusText = document.querySelector('.connection-status span');
+      
+      dot.classList.add('connected');
+      statusText.textContent = 'Conectado!';
+      statusText.style.color = '#03dac6';
+    }, 3000);
+  </script>
+</body>
+</html>
